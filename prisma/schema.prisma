@@ -1,0 +1,32 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Availability {
+  id         Int     @id @default(autoincrement())
+  contactId  Int
+  day        String  @db.VarChar(10)
+  hour       Int
+  minute     Int 
+
+  contact    Contact  @relation(fields: [contactId], references: [id])
+}
+
+model Contact {
+  id           Int            @id @default(autoincrement())
+  civilite     String         @db.VarChar(10)
+  lastName     String         @db.VarChar(100)
+  firstName    String         @db.VarChar(100)
+  email        String         @db.VarChar(150)
+  phone        String?        @db.VarChar(20)
+  messageType  String         @db.VarChar(50)
+  message      String
+  createdAt    DateTime       @default(now())
+  availabilities Availability[]
+}

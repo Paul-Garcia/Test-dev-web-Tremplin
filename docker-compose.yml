@@ -1,0 +1,37 @@
+version: "3.8"
+
+services:
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: verysecurepassword
+      MYSQL_DATABASE: tremplin
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: verysecurepassword
+    ports:
+      - "8080:80"
+
+  web:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: mysql://root:verysecurepassword@db:3306/tremplin
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+    command: sh -c "npx prisma generate && npm run build && npx prisma db push && npm run start -- -H 0.0.0.0"
+
+volumes:
+  db_data:
